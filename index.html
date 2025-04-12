@@ -1,24 +1,357 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="author" content="mark holt">
-<meta name="description" content="first lesson of introduction to computers class"
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Unscramble Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #fefefe;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    #letters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .letter {
+      padding: 15px 20px;
+      margin: 10px;
+      font-size: 1.5rem;
+      background-color: #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .letter:active {
+      background-color: #ccc;
+    }
+
+    #user-word {
+      font-size: 1.8rem;
+      margin-top: 30px;
+      color: #333;
+    }
+
+    #message {
+      font-size: 1.5rem;
+      margin-top: 20px;
+      color: green;
+    }
+
+    #score {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    #reset {
+      margin-top: 25px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #reset:active {
+      background-color: #0056b3;
+    }
+  </style>
 </head>
 <body>
-  <h1> Computers </h1>
-<h2>A computer can be defined as a programmable, electronic device that accepts data, performs operations on that data, presents the results, and can store the data or results as needed. 
-There are four primary operations of a computer: input, output, processing and storage. Modern computers are also frequently used for communication.  
-The computer is a kind of information system.  Information systems have six parts: people, procedures, data, software, hardware and networks. The most important part of the information system is people.  
-Procedures are the rules which people and computers follow to meet company policy or laws. <br>
-Software is made up of two major types:  <br>
-System software enables applications to interact with computer hardware. <br>
-Application software can be specialised or general purpose. Games, Word Processors and Spreadsheets are examples. <br></h2>
 
-  <h1> Changes </h1>
-<h2>Since the middle of the twentieth century computers have become faster, cheaper and smaller. Vacuum tupes were replaced by transistors which were replaced by chips. Large main frame computers became desktop which became laptops, tablets, smartphones and even wearable computers. Computers and traditional devices we use everyday have begun to converge into single units with multiple capabilities. The Internet of Things refers to ordinary products being connected to the internet through computers.</h2>
+  <h1>Unscramble the Word</h1>
+  <div id="score">Score: 0</div>
+  <div id="round-info"></div>
+  <div id="letters"></div>
+  <div id="user-word"></div>
+  <div id="message"></div>
+  <button id="reset">Restart Game</button>
 
+  <script>
+    const wordBank = ["planet", "garden", "window", "sunset", "rocket", "forest"];
+    let wordList = [];
+    let currentRound = 0;
+    let originalWord = "";
+    let scrambled = [];
+    let userGuess = [];
+    let score = 0;
 
-  </body>
+    const lettersDiv = document.getElementById("letters");
+    const userWordDiv = document.getElementById("user-word");
+    const messageDiv = document.getElementById("message");
+    const resetBtn = document.getElementById("reset");
+    const roundInfo = document.getElementById("round-info");
+    const scoreDiv = document.getElementById("score");
+
+    function shuffleArray(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function shuffleWord(word) {
+      let arr = word.split('');
+      while (arr.join('') === word) {
+        arr.sort(() => Math.random() - 0.5);
+      }
+      return arr;
+    }
+
+    function renderLetters() {
+      lettersDiv.innerHTML = "";
+      scrambled.forEach((letter, index) => {
+        if (letter !== null) {
+          const span = document.createElement("span");
+          span.textContent = letter;
+          span.className = "letter";
+          span.onclick = () => selectLetter(index);
+          lettersDiv.appendChild(span);
+        }
+      });
+    }
+
+    function selectLetter(index) {
+      userGuess.push(scrambled[index]);
+      scrambled[index] = null;
+      renderLetters();
+      userWordDiv.textContent = userGuess.join('');
+
+      if (userGuess.length === originalWord.length) {
+        if (userGuess.join('') === originalWord) {
+          score++;
+          scoreDiv.textContent = `Score: ${score}`;
+          messageDiv.textContent = "Correct!";
+          setTimeout(() => {
+            currentRound++;
+            if (currentRound < wordList.length) {
+              startRound();
+            } else {
+              messageDiv.textContent = `You completed all rounds! Final score: ${score}/${wordList.length}`;
+              lettersDiv.innerHTML = "";
+              userWordDiv.textContent = "";
+              roundInfo.textContent = "";
+            }
+          }, 1200);
+        } else {
+          messageDiv.textContent = "Try Again!";
+        }
+      }
+    }
+
+    function startRound() {
+      originalWord = wordList[currentRound];
+      scrambled = shuffleWord(originalWord);
+      userGuess = [];
+      userWordDiv.textContent = "";
+      messageDiv.textContent = "";
+      roundInfo.textContent = `Round ${currentRound + 1} of ${wordList.length}`;
+      renderLetters();
+    }
+
+    function resetGame() {
+      wordList = shuffleArray([...wordBank]); // Clone and shuffle
+      currentRound = 0;
+      score = 0;
+      scoreDiv.textContent = `Score: ${score}`;
+      startRound();
+    }
+
+    resetBtn.addEventListener("click", resetGame);
+
+    // Start the game
+    resetGame();
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Unscramble Game</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #fefefe;
+    }
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    #letters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .letter {
+      padding: 15px 20px;
+      margin: 10px;
+      font-size: 1.5rem;
+      background-color: #e0e0e0;
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .letter:active {
+      background-color: #ccc;
+    }
+
+    #user-word {
+      font-size: 1.8rem;
+      margin-top: 30px;
+      color: #333;
+    }
+
+    #message {
+      font-size: 1.5rem;
+      margin-top: 20px;
+      color: green;
+    }
+
+    #score {
+      font-size: 1.2rem;
+      margin-top: 10px;
+      color: #555;
+    }
+
+    #reset {
+      margin-top: 25px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #reset:active {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Unscramble the Word</h1>
+  <div id="score">Score: 0</div>
+  <div id="round-info"></div>
+  <div id="letters"></div>
+  <div id="user-word"></div>
+  <div id="message"></div>
+  <button id="reset">Restart Game</button>
+
+  <script>
+    const wordBank = ["planet", "garden", "window", "sunset", "rocket", "forest"];
+    let wordList = [];
+    let currentRound = 0;
+    let originalWord = "";
+    let scrambled = [];
+    let userGuess = [];
+    let score = 0;
+
+    const lettersDiv = document.getElementById("letters");
+    const userWordDiv = document.getElementById("user-word");
+    const messageDiv = document.getElementById("message");
+    const resetBtn = document.getElementById("reset");
+    const roundInfo = document.getElementById("round-info");
+    const scoreDiv = document.getElementById("score");
+
+    function shuffleArray(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function shuffleWord(word) {
+      let arr = word.split('');
+      while (arr.join('') === word) {
+        arr.sort(() => Math.random() - 0.5);
+      }
+      return arr;
+    }
+
+    function renderLetters() {
+      lettersDiv.innerHTML = "";
+      scrambled.forEach((letter, index) => {
+        if (letter !== null) {
+          const span = document.createElement("span");
+          span.textContent = letter;
+          span.className = "letter";
+          span.onclick = () => selectLetter(index);
+          lettersDiv.appendChild(span);
+        }
+      });
+    }
+
+    function selectLetter(index) {
+      userGuess.push(scrambled[index]);
+      scrambled[index] = null;
+      renderLetters();
+      userWordDiv.textContent = userGuess.join('');
+
+      if (userGuess.length === originalWord.length) {
+        if (userGuess.join('') === originalWord) {
+          score++;
+          scoreDiv.textContent = `Score: ${score}`;
+          messageDiv.textContent = "Correct!";
+          setTimeout(() => {
+            currentRound++;
+            if (currentRound < wordList.length) {
+              startRound();
+            } else {
+              messageDiv.textContent = `You completed all rounds! Final score: ${score}/${wordList.length}`;
+              lettersDiv.innerHTML = "";
+              userWordDiv.textContent = "";
+              roundInfo.textContent = "";
+            }
+          }, 1200);
+        } else {
+          messageDiv.textContent = "Try Again!";
+        }
+      }
+    }
+
+    function startRound() {
+      originalWord = wordList[currentRound];
+      scrambled = shuffleWord(originalWord);
+      userGuess = [];
+      userWordDiv.textContent = "";
+      messageDiv.textContent = "";
+      roundInfo.textContent = `Round ${currentRound + 1} of ${wordList.length}`;
+      renderLetters();
+    }
+
+    function resetGame() {
+      wordList = shuffleArray([...wordBank]); // Clone and shuffle
+      currentRound = 0;
+      score = 0;
+      scoreDiv.textContent = `Score: ${score}`;
+      startRound();
+    }
+
+    resetBtn.addEventListener("click", resetGame);
+
+    // Start the game
+    resetGame();
+  </script>
+</body>
 </html>
-
