@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Alphabet Order Game</title>
+  <title>Verb Order Game</title>
   <style>
     body {
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       padding: 20px;
+      min-height: 100vh;
+      box-sizing: border-box;
+      position: relative;
     }
 
     h1 {
@@ -26,6 +29,21 @@
       margin-top: 20px;
     }
 
+    .correct-container {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #f0f0f0;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+
     button {
       padding: 10px 20px;
       font-size: 18px;
@@ -34,23 +52,36 @@
       background-color: #007BFF;
       color: white;
       cursor: pointer;
+      position: relative;
+      z-index: 2;
     }
 
     button:active {
       background-color: #0056b3;
     }
+
+    .correct-button {
+      background-color: #28a745;
+    }
+
+    .falling {
+      position: absolute;
+      z-index: 999;
+      transition: top 0.5s ease;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Tap in Order</h1>
-    <h2>3sm 3sf 2sm 2sf 1s 3pm 3pf 2pm 2pf 1pm 1pf</h2>
-  <h2>or sm sf pm pf for imperative then participle then construct and absolute</h2>
+  <h1>Tap in Alphabetical Order</h1>
+  <h3>singular to plural, last one:imperative, participal, infin.</h3>
   <div class="button-container" id="buttonContainer"></div>
+  <div class="correct-container" id="correctContainer"></div>
 
   <script>
     const wordSets = [
-      {
+     {
         english: ["Ball", "Cat", "Dog", "Elephant", "Frog", "Horse", "Lion","m", "n", "o"],
         french:  ["יֹאכַל", "תֹּאכַל", "תֹּאכַל2", "תֹּאכְלִי", "אֹכַל", "יֹאכְלוּ", "תֹּאכַלְנָה","תֹּאכְלוּ", "תֹּאכַלְנָה2", "נֹאכַל"]  
        },
@@ -61,7 +92,7 @@
       {
         english: ["Ball", "Cat", "Dog", "Elephant", "Frog", "Horse", "Lion","m", "n", "o"],
         french:  ["אֱכֹל", "אִכְלִי", "אִכְלוּ", "אֱכֹלְנָה", "אֹכֵל", "אֹכֶלֶת", "אֹכְלִים","אֲכוּלוֹת", "אֱכֹל2", "אָכֹל"]  
-       }
+      }
     ];
 
     let setIndex = 0;
@@ -70,6 +101,7 @@
     let currentIndex = 0;
 
     const buttonContainer = document.getElementById('buttonContainer');
+    const correctContainer = document.getElementById('correctContainer');
 
     function shuffle(array) {
       return array.sort(() => Math.random() - 0.5);
@@ -77,22 +109,51 @@
 
     function renderButtons() {
       buttonContainer.innerHTML = "";
+      correctContainer.innerHTML = "";
       const shuffledIndices = shuffle([...Array(currentSet.english.length).keys()]);
       shuffledIndices.forEach(index => {
         const btn = document.createElement("button");
         btn.textContent = currentSet.french[index];
-        btn.addEventListener("click", () => handleClick(btn, currentSet.english[index]));
+        btn.dataset.english = currentSet.english[index];
+        btn.dataset.french = currentSet.french[index];
+        btn.addEventListener("click", () => handleClick(btn));
         buttonContainer.appendChild(btn);
       });
     }
 
-    function handleClick(button, englishWord) {
+    function handleClick(button) {
+      const englishWord = button.dataset.english;
+      const frenchWord = button.dataset.french;
       if (englishWord === order[currentIndex]) {
+        const rect = button.getBoundingClientRect();
+        const clone = button.cloneNode(true);
+        clone.classList.add("falling");
+        clone.style.left = rect.left + "px";
+        clone.style.top = rect.top + "px";
+        document.body.appendChild(clone);
+
+        // Animate to bottom
+        const targetY = window.innerHeight - 80; // adjust for bottom area
+        requestAnimationFrame(() => {
+          clone.style.top = targetY + "px";
+        });
+
+        setTimeout(() => {
+          clone.remove();
+          const correctBtn = document.createElement("button");
+          correctBtn.className = "correct-button";
+          correctBtn.textContent = frenchWord;
+          correctBtn.disabled = true;
+          correctContainer.appendChild(correctBtn);
+        }, 500);
+
         button.remove();
         currentIndex++;
         if (currentIndex === order.length) {
-          alert("Well done!");
-          nextSet();
+          setTimeout(() => {
+            alert("Well done!");
+            nextSet();
+          }, 600);
         }
       } else {
         alert("Error. Start again.");
