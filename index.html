@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Alphabet Order Game</title>
   <style>
     body {
@@ -43,69 +43,84 @@
 </head>
 <body>
 
-<h1>Tap in Alphabetical Order</h1>
-<div class="button-container" id="buttonContainer"></div>
+  <h1>Tap in Alphabetical Order</h1>
+  <div class="button-container" id="buttonContainer"></div>
 
-<script>
-  const wordSets = [
-    ["Apple", "Banana", "Cherry", "Grape", "Lemon", "Peach", "Strawberry"],
-    ["Ball", "Cat", "Dog", "Elephant", "Frog", "Horse", "Lion"],
-    ["Ant", "Bee", "Butterfly", "Cricket", "Dragonfly", "Mosquito", "Spider"],
-    ["Blue", "Green", "Orange", "Pink", "Purple", "Red", "Yellow"],
-    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-  ];
-
-  let setIndex = 0;
-  let currentWords = wordSets[setIndex];
-  let order = [...currentWords].sort();
-  let currentIndex = 0;
-
-  const buttonContainer = document.getElementById('buttonContainer');
-
-  function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
-  }
-
-  function renderButtons() {
-    buttonContainer.innerHTML = "";
-    const shuffled = shuffle([...currentWords]);
-    shuffled.forEach(word => {
-      const btn = document.createElement("button");
-      btn.textContent = word;
-      btn.addEventListener("click", () => handleClick(btn, word));
-      buttonContainer.appendChild(btn);
-    });
-  }
-
-  function handleClick(button, word) {
-    if (word === order[currentIndex]) {
-      button.remove();
-      currentIndex++;
-      if (currentIndex === order.length) {
-        alert("Well done!");
-        nextSet();
+  <script>
+    const wordSets = [
+      {
+        english: ["Apple", "Banana", "Cherry", "Grape", "Lemon", "Peach", "Strawberry"],
+        french:  ["Pomme", "Banane", "Cerise", "Raisin", "Citron", "Pêche", "Fraise"]
+      },
+      {
+        english: ["Ball", "Cat", "Dog", "Elephant", "Frog", "Horse", "Lion"],
+        french:  ["Balle", "Chat", "Chien", "Éléphant", "Grenouille", "Cheval", "Lion"]
+      },
+      {
+        english: ["Ant", "Bee", "Butterfly", "Cricket", "Dragonfly", "Mosquito", "Spider"],
+        french:  ["Fourmi", "Abeille", "Papillon", "Grillon", "Libellule", "Moustique", "Araignée"]
+      },
+      {
+        english: ["Blue", "Green", "Orange", "Pink", "Purple", "Red", "Yellow"],
+        french:  ["Bleu", "Vert", "Orange", "Rose", "Violet", "Rouge", "Jaune"]
+      },
+      {
+        english: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        french:  ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
       }
-    } else {
-      alert("Error. Start again.");
-      resetGame();
+    ];
+
+    let setIndex = 0;
+    let currentSet = wordSets[setIndex];
+    let order = [...currentSet.english].sort();
+    let currentIndex = 0;
+
+    const buttonContainer = document.getElementById('buttonContainer');
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
     }
-  }
 
-  function nextSet() {
-    setIndex = (setIndex + 1) % wordSets.length;
-    currentWords = wordSets[setIndex];
-    order = [...currentWords].sort();
-    currentIndex = 0;
+    function renderButtons() {
+      buttonContainer.innerHTML = "";
+      const shuffledIndices = shuffle([...Array(currentSet.english.length).keys()]);
+      shuffledIndices.forEach(index => {
+        const btn = document.createElement("button");
+        btn.textContent = currentSet.french[index];
+        btn.addEventListener("click", () => handleClick(btn, currentSet.english[index]));
+        buttonContainer.appendChild(btn);
+      });
+    }
+
+    function handleClick(button, englishWord) {
+      if (englishWord === order[currentIndex]) {
+        button.remove();
+        currentIndex++;
+        if (currentIndex === order.length) {
+          alert("Well done!");
+          nextSet();
+        }
+      } else {
+        alert("Error. Start again.");
+        resetGame();
+      }
+    }
+
+    function nextSet() {
+      setIndex = (setIndex + 1) % wordSets.length;
+      currentSet = wordSets[setIndex];
+      order = [...currentSet.english].sort();
+      currentIndex = 0;
+      renderButtons();
+    }
+
+    function resetGame() {
+      currentIndex = 0;
+      renderButtons();
+    }
+
     renderButtons();
-  }
-
-  function resetGame() {
-    currentIndex = 0;
-    renderButtons();
-  }
-
-  renderButtons();
-</script>
+  </script>
 
 </body>
 </html>
